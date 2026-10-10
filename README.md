@@ -1,6 +1,6 @@
-# Barbarossa · Financeiro
+# Barber Gestão Financeira
 
-App financeiro do Social Club Barbarossa (PWA, instalável no celular). Arquivo único, sem build e sem backend: os dados ficam no `localStorage` do aparelho (use o backup/exportar dentro do app).
+Gestão financeira para barbearias e salões (nasceu no Social Club Barbarossa, primeiro cliente) (PWA, instalável no celular). Arquivo único, sem build e sem backend: os dados ficam no `localStorage` do aparelho (use o backup/exportar dentro do app).
 
 ## Estrutura
 - `index.html` – o app inteiro (HTML + CSS + JS)

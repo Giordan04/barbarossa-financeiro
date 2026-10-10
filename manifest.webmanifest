@@ -1,7 +1,7 @@
 {
-  "name": "Barbarossa · Financeiro",
-  "short_name": "Barbarossa",
-  "description": "App financeiro do Social Club Barbarossa",
+  "name": "Barber Gestão Financeira",
+  "short_name": "Barber Gestão",
+  "description": "Gestão financeira para barbearias e salões",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
