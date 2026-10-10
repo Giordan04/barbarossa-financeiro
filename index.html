@@ -1239,6 +1239,7 @@ async function flushShardedChunk(c,forcarTudo){
   SHARD_COUNT_MAX[c.k]=Math.max(totalPedacos,anteriorMax);
 }
 function scheduleDbSync(){
+  if(window.CLOUD&&CLOUD.ativo){CLOUD.agendar();return}
   if(!DB_READY||!DB)return;
   clearTimeout(DB_TIMER);
   DB_TIMER=setTimeout(flushDbSync,600);
@@ -8850,6 +8851,7 @@ document.addEventListener('click',async e=>{
     if(REAJUSTE_SEL.has(nome))REAJUSTE_SEL.delete(nome);else REAJUSTE_SEL.add(nome);
     reRenderReajuste();
   }
+  else if(a==='syncinfo'&&window.CLOUD&&CLOUD.ativo)CLOUD.abrirConta();
   else if(a==='syncinfo'){
     const M={local:'Este aparelho não está conectado à nuvem — só você vê o que lançar aqui.',carregando:'Conectando aos dados compartilhados…',ao_vivo:'Conectado — tudo que você lançar aparece pros outros também, e vice-versa.',erro:'Algo falhou ao conectar com a nuvem.'};
     const prontos=DB_CHUNKS.filter(c=>DB_CHUNK_READY[c.k]).length;
@@ -9336,6 +9338,8 @@ function reordenarContas(ids){
   document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.conta-bloco')&&(timer||drag))e.preventDefault()});
 })();
 </script>
+<script src="config.js"></script>
+<script src="cloud.js"></script>
 <script>if("serviceWorker" in navigator&&location.protocol!=="file:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
