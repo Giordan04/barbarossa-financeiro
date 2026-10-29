@@ -26,7 +26,7 @@
 
   /* ---------- tela de login ---------- */
   const CSS=`
-  #cloud-ov{position:fixed;inset:0;z-index:200;background:var(--bg);background-image:var(--glow);background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+  #cloud-ov{position:fixed;inset:0;z-index:300;background:var(--bg);background-image:var(--glow);background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
   #cloud-ov .box{width:100%;max-width:400px}
   #cloud-ov .lg{width:58px;height:58px;border-radius:16px;background:var(--grad);color:#d9b866;border:1px solid rgba(201,162,74,.45);display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:30px;margin:0 auto 14px}
   #cloud-ov h1{text-align:center;font-size:24px;margin-bottom:4px}

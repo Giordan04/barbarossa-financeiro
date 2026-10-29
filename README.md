@@ -2,6 +2,12 @@
 
 Gestão financeira para barbearias e salões (nasceu no Social Club Barbarossa, primeiro cliente) (PWA, instalável no celular). Arquivo único, sem build e sem backend: os dados ficam no `localStorage` do aparelho (use o backup/exportar dentro do app).
 
+## Atenção: dados de clientes
+Este repositório é **público**. Nunca coloque aqui arquivos com dados reais de clientes (CPF, telefone, e-mail). O `reativacao.html` do artefato original contém uma lista real de clientes e por isso está no `.gitignore`: a aba *Reativação* fica sem conteúdo no site público até esses dados irem para o banco (Supabase), protegidos por login.
+
+## Testes
+`node tests/test_money.js index.html` (leitura de valores em R$ e validação da logo).
+
 ## Estrutura
 - `index.html` – o app inteiro (HTML + CSS + JS)
 - `manifest.webmanifest`, `sw.js`, `icons/` – instalação como app e uso offline
