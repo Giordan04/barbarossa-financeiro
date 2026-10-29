@@ -1,0 +1,140 @@
+diff --git a/index.html b/index.html
+index b3e3fbf..12f8605 100644
+--- a/index.html
++++ b/index.html
+@@ -2,6 +2,7 @@
+ <html lang="pt-BR">
+ <head>
+ <meta charset="utf-8">
++<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#f4eee3" media="(prefers-color-scheme: light)">
+ <meta name="theme-color" content="#0e0c0a" media="(prefers-color-scheme: dark)">
+@@ -440,6 +441,7 @@ function moneyMask(n){
+   const neg=Number(n)<0;
+   return (neg?'-':'')+moneyMaskDigits(String(Math.round(Math.abs(Number(n))*100)));
+ }
++function logoSeguro(u){u=(u===undefined&&typeof S!=='undefined'&&S.config)?S.config.logoDataUrl:u;return (typeof u==='string'&&/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u))?u:''}
+ function parseMoney(s){
+   s=String(s||'').replace(/[R$\s]/g,'');
+   if(!s)return NaN;
+@@ -447,6 +449,7 @@ function parseMoney(s){
+   // virava 1,17. Se o ÚLTIMO separador é o ponto, é formato en-US.
+   if(s.includes(',')&&s.includes('.')&&s.lastIndexOf('.')>s.lastIndexOf(','))s=s.replace(/,/g,'');
+   else if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');
++  else if(/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,''); // "1.500" = mil e quinhentos (centavos têm 2 casas)
+   return parseFloat(s);
+ }
+ const ym=s=>{const [y,m]=s.split('-').map(Number);return {y,m}};
+@@ -462,7 +465,7 @@ let ICONE_PWA_PADRAO=null;
+ function atualizarIconePWA(){
+   const li=document.getElementById('link_appicon'),li2=document.getElementById('link_favicon');
+   if(ICONE_PWA_PADRAO===null&&li)ICONE_PWA_PADRAO=li.href; // guarda o "B" de reserva na primeira vez
+-  const href=(S.config&&S.config.logoDataUrl)||ICONE_PWA_PADRAO;
++  const href=logoSeguro()||ICONE_PWA_PADRAO;
+   if(!href)return;
+   if(li)li.href=href;
+   if(li2)li2.href=href;
+@@ -974,7 +977,7 @@ async function parsePdfParaTabela(file,colunas){
+   if(typeof pdfjsLib==='undefined')throw new Error('sem-pdf');
+   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+   const buf=await file.arrayBuffer();
+-  const doc=await pdfjsLib.getDocument({data:buf}).promise;
++  const doc=await pdfjsLib.getDocument({data:buf,isEvalSupported:false}).promise;
+   let todasLinhas=[];const paginasItens=[];
+   const maxPaginas=Math.min(doc.numPages,60);
+   for(let p=1;p<=maxPaginas;p++){
+@@ -1017,7 +1020,7 @@ async function parsePdfClientesCelcoin(file){
+   if(typeof pdfjsLib==='undefined')throw new Error('sem-pdf');
+   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+   const buf=await file.arrayBuffer();
+-  const doc=await pdfjsLib.getDocument({data:buf}).promise;
++  const doc=await pdfjsLib.getDocument({data:buf,isEvalSupported:false}).promise;
+   const DOC_RE=/^\d{2,3}\.\d{3}\.\d{3}[/-]/,PG_RE=/^\d{1,3}\/\d{1,3}$/;
+   const CABECALHO=new Set(['Nome','/','Razão','Social','Documento','do','cliente','E-mail','Telefone']);
+   const CARIMBO_RE=/^\d{2}\/\d{2}\/\d{2},?$|^\d{1,2}:\d{2}$/;
+@@ -1156,10 +1159,10 @@ function extraChartData(fonte){
+   return [];
+ }
+ function newCfgId(){return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+-let saveWarned=false;
++let saveWarned=0;
+ let HOUVE_MUDANCA_BACKUP=false;
+ let ASSIN_CACHE=null,ASSIN_SIG='';
+-function save(){HOUVE_MUDANCA_BACKUP=true;ASSIN_CACHE=null;NOMES_POOL=null;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!saveWarned){saveWarned=true;toast('Este navegador não permite salvar. Faça backup em Ajustes.')}}try{marcarSujo()}catch(_){}scheduleDbSync()}
++function save(){HOUVE_MUDANCA_BACKUP=true;ASSIN_CACHE=null;NOMES_POOL=null;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(Date.now()-saveWarned>300000){saveWarned=Date.now();toast('Este navegador não permite salvar. Faça backup em Ajustes.')}}try{marcarSujo()}catch(_){}scheduleDbSync()}
+ 
+ /* ===================== ACESSO COMPARTILHADO (opcional) =====================
+    Quando o artifact é aberto com a capacidade "db" concedida (organização/
+@@ -3056,7 +3059,7 @@ function render(){
+   const sal=saldoTotal();
+   const head=`
+   <div class="top">
+-    <div class="brand"><label class="logo" style="cursor:pointer;overflow:hidden">${S.config.logoDataUrl?`<img src="${S.config.logoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`:'B'}<input type="file" accept="image/*" id="f_logo" style="display:none"></label><div><b>Barbarossa</b><small>Social Club · Financeiro</small>${syncBadgeHTML()}</div></div>
++    <div class="brand"><label class="logo" style="cursor:pointer;overflow:hidden">${S.config.logoDataUrl?`<img src="${logoSeguro()}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`:'B'}<input type="file" accept="image/*" id="f_logo" style="display:none"></label><div><b>Barbarossa</b><small>Social Club · Financeiro</small>${syncBadgeHTML()}</div></div>
+     <div style="display:flex;gap:8px"><button class="iconbtn" data-act="undo" title="Desfazer última ação" aria-label="Desfazer" style="${UNDO_SNAPSHOT?'':'opacity:.35'}">${ICO.undo}</button><button class="iconbtn" data-act="tab" data-v="personalizar" title="Personalizar" aria-label="Personalizar">${ICO.brush}</button><button class="iconbtn" data-act="theme" title="Tema claro/escuro" aria-label="Tema">${ICO.theme}</button><button class="iconbtn" data-act="settings" title="Ajustes" aria-label="Ajustes">${ICO.gear}</button></div>
+   </div>
+   ${(()=>{const sem=!!S.config.saldoSemSocios,retT=retiradasPagasAte(todayISO()),salV=sem?round2(sal+retT):sal,RS=resultadoPeriodoSocios();
+@@ -5203,7 +5206,7 @@ function passoPeriodo(dir){
+   V.range={de:`${y1}-${pad(m1)}`,ate:`${y2}-${pad(m2)}`};V.year=y1;V.month=m1;
+ }
+ function dreHtmlDoc(titulo,corpoHtml){
+-  const logo=S.config.logoDataUrl?`<img src="${S.config.logoDataUrl}" style="width:44px;height:44px;border-radius:10px;object-fit:cover">`:'';
++  const logo=S.config.logoDataUrl?`<img src="${logoSeguro()}" style="width:44px;height:44px;border-radius:10px;object-fit:cover">`:'';
+   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(titulo)}</title>
+   <style>
+     body{font-family:Arial,Helvetica,sans-serif;background:#f4eee3;color:#2b2119;margin:0;padding:24px}
+@@ -9284,7 +9287,7 @@ function acharCabecalho(t){
+ async function pdfTextoPrimeiraPagina(file){
+   if(typeof pdfjsLib==='undefined')throw erroArq('sem-pdf');
+   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+-  const doc=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
++  const doc=await pdfjsLib.getDocument({data:await file.arrayBuffer(),isEvalSupported:false}).promise;
+   if(!doc.numPages)return [];
+   const c=await (await doc.getPage(1)).getTextContent();
+   return c.items.map(it=>String(it.str||'').trim()).filter(Boolean);
+@@ -12072,7 +12075,7 @@ function imprimirRelatorio(rel){
+   const app=$('#app');const velho=document.getElementById('printhead');if(velho)velho.remove();
+   const ph=document.createElement('div');ph.id='printhead';ph.className='printhead';
+   const d=new Date(),periodo=rel==='fluxo'?`Ano ${V.year}`:rel==='retencao'?relPeriodo().label:tituloPeriodoDRE();
+-  ph.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><div>${S.config.logoDataUrl?`<img src="${S.config.logoDataUrl}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:8px">`:''}<b style="font-size:17pt">Barbearia Barbarossa</b><div style="font-size:11pt;margin-top:2px">${esc(NOMES_REL[rel]||'Relatório')} · ${esc(periodo)}</div></div><div style="font-size:9pt;color:#555;text-align:right">Gerado em ${fmtDate(todayISO())} às ${pad(d.getHours())}:${pad(d.getMinutes())}<br>Gramado/RS</div></div>`;
++  ph.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><div>${S.config.logoDataUrl?`<img src="${logoSeguro()}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:8px">`:''}<b style="font-size:17pt">Barbearia Barbarossa</b><div style="font-size:11pt;margin-top:2px">${esc(NOMES_REL[rel]||'Relatório')} · ${esc(periodo)}</div></div><div style="font-size:9pt;color:#555;text-align:right">Gerado em ${fmtDate(todayISO())} às ${pad(d.getHours())}:${pad(d.getMinutes())}<br>Gramado/RS</div></div>`;
+   app.insertBefore(ph,app.firstChild);
+   const limpar=()=>{const x=document.getElementById('printhead');if(x)x.remove();window.removeEventListener('afterprint',limpar)};
+   window.addEventListener('afterprint',limpar);
+@@ -12437,7 +12440,7 @@ function expImprimir(){
+   const velho=document.getElementById('printhead');if(velho)velho.remove();
+   const velhoAll=document.getElementById('printall');if(velhoAll)velhoAll.remove();
+   const app=document.getElementById('app'),ph=document.createElement('div');ph.id='printhead';ph.className='printhead';
+-  ph.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><div>${S.config.logoDataUrl?`<img src="${S.config.logoDataUrl}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:8px">`:''}<b style="font-size:16pt">Barbearia Barbarossa</b><div style="font-size:10pt;color:#555">${esc(nome)}</div></div><div style="font-size:9pt;color:#555">Gerado em ${fmtDate(todayISO())}</div></div>`;
++  ph.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><div>${S.config.logoDataUrl?`<img src="${logoSeguro()}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:8px">`:''}<b style="font-size:16pt">Barbearia Barbarossa</b><div style="font-size:10pt;color:#555">${esc(nome)}</div></div><div style="font-size:9pt;color:#555">Gerado em ${fmtDate(todayISO())}</div></div>`;
+   app.insertBefore(ph,app.firstChild);
+   const box=document.createElement('div');box.id='printall';
+   expSelecionadas().forEach((s,i)=>box.insertAdjacentHTML('beforeend',(V.tab==='projecao'?`<h2 style="${i?'break-before:page;':''}margin:14px 0 8px">${esc(s.label)}</h2>`:'')+s.html));
+@@ -13731,7 +13734,7 @@ html.tab-reat #reatHost{display:block}
+   });
+   try{passarParaReativacao=window.passarParaReativacao;voltarDaReativacao=window.voltarDaReativacao;devolverDoResgate=window.devolverDoResgate;passarParaResgate=window.passarParaResgate}catch(e){}
+   var tIni=setInterval(function(){try{if(window.sincronizarResgates()!==false){clearInterval(tIni);render()}}catch(e){clearInterval(tIni)}},500);
+-  setInterval(function(){try{var a=localStorage.getItem(REG_KEY);window.sincronizarResgates();if(localStorage.getItem(REG_KEY)!==a||V.tab==='retencao'||V.tab==='reativacao')render()}catch(e){}},20000);
++  setInterval(function(){try{var a=localStorage.getItem(REG_KEY);window.sincronizarResgates();if((localStorage.getItem(REG_KEY)!==a||V.tab==='retencao'||V.tab==='reativacao')&&!/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||''))render()}catch(e){}},20000);
+   var REG_REMOTO=null;
+   window.addEventListener('message',function(ev){var d=ev.data;if(!d||d.tipo!=='barbarossa-resgates-recebidos'||!Array.isArray(d.casos))return;
+     var f2=document.getElementById('reatFrame');if(!f2||ev.source!==f2.contentWindow)return;REG_REMOTO=d.casos;try{render()}catch(e){}});
+@@ -14205,7 +14208,7 @@ html.sbmini #side .sblogo{width:44px!important;height:44px!important}
+   st.falhas=st.falhas||{};
+   function ini(n){var p=String(n||'?').trim().split(/\s+/);return ((p[0]||'?')[0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase()}
+   function av(u){return '<span class="lgAv" style="background:'+(u.cor||CORES[0])+'">'+e(ini(u.nome))+'</span>'}
+-  function logoHTML(){var u=(typeof S!=='undefined')&&S.config&&S.config.logoDataUrl;return u?'<img src="'+u+'" alt="Social Club Barbarossa">':'<b style="font-family:var(--serif);font-size:44px;color:#8f6a27">B</b>'}
++  function logoHTML(){var u=(typeof logoSeguro==='function')&&logoSeguro();return u?'<img src="'+u+'" alt="Social Club Barbarossa">':'<b style="font-family:var(--serif);font-size:44px;color:#8f6a27">B</b>'}
+   var popAberto=false,tela=document.getElementById('lgTela'),modo='lista',escolhido=null,erro='',origemAdmin=false;
+   window.usuarioLogado=function(){return st.usuarios.find(function(u){return u.id===st.atual})||null};
+ 
+@@ -14846,7 +14849,7 @@ html.sbmini #side .sbtoggle{transform:rotate(180deg)}
+     if(e==='pdf'||e==='ai'||t==='application/pdf'){
+       var pdfjs=await lib('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','pdfjsLib');
+       pdfjs.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+-      var doc=await pdfjs.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,pg=await doc.getPage(1);
++      var doc=await pdfjs.getDocument({data:new Uint8Array(await f.arrayBuffer()),isEvalSupported:false}).promise,pg=await doc.getPage(1);
+       var v0=pg.getViewport({scale:1}),sc=Math.min(4,1400/Math.max(v0.width,v0.height)),v=pg.getViewport({scale:sc});
+       var cv=document.createElement('canvas');cv.width=Math.round(v.width);cv.height=Math.round(v.height);
+       await pg.render({canvasContext:cv.getContext('2d',{alpha:true}),viewport:v,background:'rgba(0,0,0,0)'}).promise;return cv;
