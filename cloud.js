@@ -37,6 +37,8 @@
   #cloud-ov .btn{width:100%;margin-top:6px}
   #cloud-ov .lnk{display:block;text-align:center;margin-top:12px;color:var(--muted);font-size:12.5px;text-decoration:underline;width:100%}
   #cloud-ov .msg{min-height:18px;margin-top:10px;text-align:center;font-size:12.5px;font-weight:600}
+  #cloud-ov .ou{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:16px 0 10px}#cloud-ov .ou::before,#cloud-ov .ou::after{content:'';flex:1;height:1px;background:var(--border)}
+  #cloud-ov .soc{margin-top:8px}
   #cloud-ov .msg.e{color:var(--red)}#cloud-ov .msg.o{color:var(--green)}`;
   function tela(html){
     let ov=$('#cloud-ov');
@@ -61,6 +63,17 @@
     return m;
   };
 
+  const PROV={google:'Continuar com o Google',apple:'Continuar com a Apple'};
+  function social(){
+    const ls=(CFG.loginSocial||[]).filter(p=>PROV[p]);
+    if(!ls.length)return '';
+    return '<div class="ou"><span>ou</span></div>'+ls.map(p=>`<button type="button" class="btn sec soc" data-prov="${p}">${PROV[p]}</button>`).join('');
+  }
+  async function entrarSocial(p){
+    msg('');
+    const {error}=await sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+location.pathname}});
+    if(error)msg(/not enabled|Unsupported provider/i.test(error.message)?'Esta forma de entrar ainda não foi ativada no painel do Supabase.':traduz(error.message),'e');
+  }
   function telaLogin(aba){
     aba=aba||'entrar';const novo=aba==='criar';
     tela(`${cab(novo?'Crie a conta da sua barbearia':'Entre para acessar o financeiro')}
@@ -72,7 +85,9 @@
       <button class="btn" type="submit" id="cl-go">${novo?'Criar conta':'Entrar'}</button>
       ${novo?'':'<button class="lnk" type="button" id="cl-rec">Esqueci minha senha</button>'}
       <div id="cloud-msg" class="msg"></div>
-    </form>`);
+    </form>
+    ${social()}`);
+    document.querySelectorAll('#cloud-ov [data-prov]').forEach(b=>b.onclick=()=>entrarSocial(b.dataset.prov));
     document.querySelectorAll('#cloud-ov .abas button').forEach(b=>b.onclick=()=>telaLogin(b.dataset.a));
     const rec=$('#cl-rec');
     if(rec)rec.onclick=async()=>{
@@ -143,7 +158,7 @@
   function dadosVazios(s){
     return !s||!((s.entradas||[]).length||(s.despesas||[]).length||(s.clientes||[]).length||(s.contas||[]).length||(s.colaboradores||[]).length||(s.contasPagar||[]).length||(s.contasReceber||[]).length);
   }
-  function guardarCopiaLocal(){try{localStorage.setItem('barbarossa_fin_v1_copia_'+Date.now(),JSON.stringify(S))}catch(e){}}
+  function guardarCopiaLocal(){try{PERSIST.copia(JSON.stringify(S))}catch(e){}}
   function aplicarEstado(obj){
     // substitui o estado em memória pelo da nuvem, mantendo o formato esperado pelo app
     const novo=Object.assign(blank(),obj);novo.imp=Object.assign(blank().imp,obj.imp||{});
@@ -171,7 +186,7 @@
       aplicarEstado(nuvem.data);
       ultimoEnviado=JSON.stringify(S);
       ls.set(CHAVE_EMPRESA,C.empresa.id);
-      try{localStorage.setItem(KEY,ultimoEnviado)}catch(e){}
+      try{PERSIST.gravar(ultimoEnviado)}catch(e){}
     }
     render();
   }
@@ -215,7 +230,7 @@
     const fica=confirm('Os dados foram alterados em outro aparelho.\n\nOK = carregar a versão da nuvem (suas alterações desta tela serão descartadas)\nCancelar = manter a sua versão e sobrescrever a nuvem');
     if(fica){
       guardarCopiaLocal();aplicarEstado(nuvem.data);C.versao=nuvem.versao;ultimoEnviado=JSON.stringify(S);
-      try{localStorage.setItem(KEY,ultimoEnviado)}catch(e){}
+      try{PERSIST.gravar(ultimoEnviado)}catch(e){}
       render();setStatus('ao_vivo');
     }else{
       C.versao=nuvem.versao;ultimoEnviado=null;
@@ -223,6 +238,12 @@
     pausado=false;
     if(!fica)setTimeout(()=>enviar(false),0);
   }
+  // outra aba deste aparelho mudou os dados e já os enviou: esta aba só atualiza o controle, sem reenviar
+  C.aposAdotar=async function(){
+    if(!C.ativo)return;
+    ultimoEnviado=JSON.stringify(S);
+    setTimeout(async()=>{try{const {data}=await sb.from('app_state').select('versao').eq('empresa_id',C.empresa.id).single();if(data&&data.versao>C.versao)C.versao=data.versao}catch(e){}},2500);
+  };
   // ao voltar para o app, busca mudanças feitas em outro aparelho (só se não houver nada pendente aqui)
   async function puxarSeNovo(){
     if(!C.ativo||enviando||pausado)return;
@@ -232,7 +253,7 @@
       if(error||!data||data.versao<=C.versao)return;
       const n=await lerNuvem();
       aplicarEstado(n.data);C.versao=n.versao;ultimoEnviado=JSON.stringify(S);
-      try{localStorage.setItem(KEY,ultimoEnviado)}catch(e){}
+      try{PERSIST.gravar(ultimoEnviado)}catch(e){}
       render();
     }catch(e){}
   }
@@ -259,7 +280,7 @@
     try{await sb.auth.signOut()}catch(e){}
     guardarCopiaLocal();
     S=blank();ensureConfig();ultimoEnviado=null;
-    try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+    try{PERSIST.gravar(JSON.stringify(S))}catch(e){}
     ls.del(CHAVE_EMPRESA);
     location.reload();
   };

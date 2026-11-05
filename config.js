@@ -4,5 +4,6 @@
 window.APP_CONFIG = {
   nome: 'Barber Gestão Financeira',   // nome do produto (aparece na tela de login) — troque quando escolher o nome final
   supabaseUrl: '',
-  supabaseAnonKey: ''
+  supabaseAnonKey: '',
+  loginSocial: ['google', 'apple']   // botões "Continuar com…"; tire um da lista se não for usar. Precisam estar ativados no Supabase (ver README)
 };

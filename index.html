@@ -377,7 +377,7 @@ nav button.grp{min-width:60px}
 <div id="toastbox"></div>
 <input type="file" accept="image/*" capture="environment" id="f_fotoentrada" style="display:none">
 
-<script>
+<script type="text/plain" data-app>
 /* ============ utilidades ============ */
 const KEY='barbarossa_fin_v1';
 const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -457,7 +457,7 @@ const ym=s=>{const [y,m]=s.split('-').map(Number);return {y,m}};
 /* ============ estado + persistência ============ */
 function blank(){return {v:1,seq:{ENT:0,DES:0,CAR:0,PAT:0,MET:0,CTA:0,COL:0,ITM:0,PLN:0,TRF:0,CLI:0,CPG:0,CRC:0,SLD:0,MOV:0,REC:0,ADT:0,CPC:0,ACR:0,FEC:0},movContas:[],recebiveis:[],adiantamentos:[],comprasColab:[],acertosColab:[],fechamentosColab:[],comissaoCB:{},entradas:[],despesas:[],cartoes:[],patrimonio:[],metas:[],contas:[],colaboradores:[],itens:[],planos:[],transferencias:[],clientes:[],contasPagar:[],contasReceber:[],saldosConta:[],demo:false,
   imp:{clientes:[],freq:[],agend:[],contratos:[],transacoes:[],cartaoCB:[],comandas:[],categorias:[],valoresAss:[],formas:[]},anexos:{},retencao:{reguas:[],aprendizados:[],contatos:[],progresso:{},envios:[]},historicoPontualidade:[]}}
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);const b=blank();const s=Object.assign(b,d);s.imp=Object.assign(blank().imp,d.imp||{});return s}}catch(e){}return blank()}
+function load(){try{const r=(window.PERSIST&&PERSIST.bootJson)||localStorage.getItem(KEY);if(r){const d=JSON.parse(r);const b=blank();const s=Object.assign(b,d);s.imp=Object.assign(blank().imp,d.imp||{});return s}}catch(e){}return blank()}
 /* Ícone do app na tela inicial (PWA): usa a logo de verdade do negócio assim que ela existir (a mesma
    que aparece no topo do app, S.config.logoDataUrl) — sem isso, fica só o "B" genérico de reserva. Chama
    de novo sempre que a logo for trocada/removida ou que os dados sincronizarem de outro aparelho. */
@@ -1162,7 +1162,7 @@ function newCfgId(){return 'c'+Date.now().toString(36)+Math.random().toString(36
 let saveWarned=0;
 let HOUVE_MUDANCA_BACKUP=false;
 let ASSIN_CACHE=null,ASSIN_SIG='';
-function save(){HOUVE_MUDANCA_BACKUP=true;ASSIN_CACHE=null;NOMES_POOL=null;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(Date.now()-saveWarned>300000){saveWarned=Date.now();toast('Este navegador não permite salvar. Faça backup em Ajustes.')}}try{marcarSujo()}catch(_){}scheduleDbSync()}
+function save(){HOUVE_MUDANCA_BACKUP=true;ASSIN_CACHE=null;NOMES_POOL=null;try{if(!PERSIST.gravar(JSON.stringify(S))&&Date.now()-saveWarned>300000){saveWarned=Date.now();toast(PERSIST.motivo())}}catch(e){if(Date.now()-saveWarned>300000){saveWarned=Date.now();toast('Não consegui salvar neste navegador. Faça backup em Ajustes.')}}try{marcarSujo()}catch(_){}scheduleDbSync()}
 
 /* ===================== ACESSO COMPARTILHADO (opcional) =====================
    Quando o artifact é aberto com a capacidade "db" concedida (organização/
@@ -15294,7 +15294,7 @@ function reordenarContas(ids){
 </html>
 
 <!-- ===== Layout novo: menu lateral, Painel e temas Vivo/Violeta ===== -->
-<script>
+<script type="text/plain" data-app>
 /* Painel novo lê a projeção e o ano pelas MESMAS contas da aba Projeção (projCalc), para os números baterem. */
 (function(){
   window.projecaoCalc=function(){
@@ -15329,7 +15329,7 @@ html.tab-reat #reatHost{display:block}
 .rgst.sc{color:var(--muted);border-color:var(--border);background:var(--card2)}
 </style>
 <div id="reatHost"><iframe id="reatFrame" title="Reativação"></iframe></div>
-<script>
+<script type="text/plain" data-app>
 (function(){
   if(typeof NAV_GRUPOS==='undefined')return;
   var I=function(d){return _svg(d)};
@@ -15570,7 +15570,7 @@ html[data-skin="violeta"] .npk:nth-child(5) .t i{background:rgba(251,191,36,.16)
 html[data-skin="violeta"] .npk:nth-child(6) .t i{background:rgba(124,77,255,.20);color:#b39dff}
 
 </style>
-<script>
+<script type="text/plain" data-app>
 (function(){
   if(typeof vPainel!=='function')return;
   var MESL=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -15735,7 +15735,7 @@ html[data-skin="violeta"] .npk:nth-child(6) .t i{background:rgba(124,77,255,.20)
 .pgvazio{font-size:12px;color:var(--pgMuted)}
 html.tab-pg #app .saldo{display:none!important}
 </style>
-<script>
+<script type="text/plain" data-app>
 (function(){
   if(typeof NAV_GRUPOS==='undefined')return;
   /* aba nova no começo do Caixa */
@@ -15923,7 +15923,7 @@ html.sbmini #side .sblogo{width:44px!important;height:44px!important}
 #app .top .logo img{border-radius:50%!important;width:106%!important;height:106%!important}
 </style>
 <div id="lgTela" hidden></div>
-<script>
+<script type="text/plain" data-app>
 (function(){
   var KEYL='barbarossa_login_v1';
   var CORES=['#2563eb','#db2777','#16a34a','#f97316','#7c3aed','#0d9488','#e11d48','#0ea5e9'];
@@ -16073,7 +16073,7 @@ html.sbmini #side .sblogo{width:44px!important;height:44px!important}
 .cartoesopc input{accent-color:var(--pri)}
 .cartoesopc small{color:var(--muted);margin-left:auto;font-size:11.5px;white-space:nowrap}
 </style>
-<script>
+<script type="text/plain" data-app>
 (function(){
   /* ================= 1) IDs repetidos =================
      Quando duas pessoas lançam ao mesmo tempo (ou uma importa enquanto a outra lança), o contador de
@@ -16315,7 +16315,7 @@ html.sbmini #side .sbtoggle{transform:rotate(180deg)}
 </style>
 <aside id="side" aria-label="Menu principal"></aside>
 <div id="sbveil" data-sb="fechar"></div>
-<script>
+<script type="text/plain" data-app>
 (function(){
   var KEYSB='barbarossa_menu_v2';
   var est={abertos:null,mini:false,lang:'pt',skin:'vivo'};
@@ -16958,7 +16958,7 @@ html #side .sbmarca .sblogoup img{pointer-events:none;-webkit-user-drag:none;use
 #app .top .topdir>div:first-child{order:1;text-align:left!important}
 #app .top .topdir>div:first-child>div,#app .top .topdir [data-act="syncinfo"]{justify-content:flex-start!important}
 </style>
-<script>
+<script type="text/plain" data-app>
 /* Deixa o app de Reativação no mesmo layout e estilo do financeiro (qualquer estilo, inclusive o Clássico), só por cima:
    uma folha de estilo extra dentro do quadro, sem mexer no código nem na estrutura dele. */
 (function(){
@@ -17053,7 +17053,7 @@ html #side .sbmarca .sblogoup img{pointer-events:none;-webkit-user-drag:none;use
   setTimeout(aplicar,800);
 })();
 </script>
-<script>
+<script type="text/plain" data-app>
 /* Troca os emojis do app de Reativação pelos ícones de linha do app financeiro (mesmo traço fino, cor do texto).
    Só na tela: textos de mensagem (roteiros para WhatsApp, campos de texto) ficam como estão. */
 (function(){
@@ -17168,7 +17168,7 @@ html.sbmini #side .sbbrand,html.sbmini #side .sbfio{display:none!important}
 .wrap,#app.wrap,html body #app{max-width:none!important;width:100%!important}
 @media (min-width:900px){#app.wrap{padding-left:24px!important;padding-right:24px!important}}
 </style>
-<script>
+<script type="text/plain" data-app>
 /* ===== Pós-importação: toda importação/lançamento em massa atualiza TUDO na hora =====
    Vários importadores (Movimentações, Comandas, Categorias, Lançamentos, Contas em massa…) gravavam mas só redesenhavam
    o resumo dentro da janela — a tela de trás (Painel, Entradas, Assinantes, Retenção, Equipe, Projeção) ficava velha
@@ -17211,8 +17211,92 @@ html.sbmini #side .sbbrand,html.sbmini #side .sbfio{display:none!important}
 .pgc,.npc{min-width:0}
 </style>
 
-<script src="config.js"></script>
-<script src="cloud.js"></script>
+<script>
+/* Persistência: o IndexedDB é a fonte principal (aguenta centenas de MB); o localStorage (limite ~5 MB) fica só como cópia
+   quando couber. Antes disso, estado grande estourava a cota do navegador e aparecia "não permite salvar". Os scripts do app
+   (type="text/plain" data-app) só rodam depois que o estado salvo foi lido. */
+(function(){
+  var KEY='barbarossa_fin_v1',TK=KEY+'_t',DBN='barbarossa_fin_idb',ST='kv';
+  var P=window.PERSIST={db:null,t:0,bootJson:null,idbOk:false,lsOk:true,erroIdb:'',eu:Math.random().toString(36).slice(2),onerro:null};
+  var fila=null,gravando=false,bc=null,pend=false;
+  function abrir(){return new Promise(function(ok,no){
+    try{
+      if(!window.indexedDB)return no(new Error('sem indexedDB'));
+      var r=indexedDB.open(DBN,1);
+      r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains(ST))d.createObjectStore(ST);if(!d.objectStoreNames.contains('copias'))d.createObjectStore('copias')};
+      r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)};r.onblocked=function(){no(new Error('bloqueado'))};
+      setTimeout(function(){no(new Error('tempo esgotado'))},4000);
+    }catch(e){no(e)}})}
+  function lerIdb(){return new Promise(function(ok){
+    if(!P.db)return ok(null);
+    try{var q=P.db.transaction(ST,'readonly').objectStore(ST).get('estado');q.onsuccess=function(){ok(q.result||null)};q.onerror=function(){ok(null)}}catch(e){ok(null)}})}
+  P.ler=lerIdb;
+  function escreverIdb(){
+    if(gravando||!fila||!P.db)return;
+    var item=fila;fila=null;gravando=true;
+    var fim=function(bom,err){
+      if(!gravando)return;gravando=false;P.idbOk=bom;P.erroIdb=bom?'':(err||'erro');
+      if(bom){if(bc){try{bc.postMessage({de:P.eu,t:item.t})}catch(e){}}}else if(P.onerro){try{P.onerro()}catch(e){}}
+      escreverIdb();
+    };
+    try{
+      var tx=P.db.transaction(ST,'readwrite');tx.objectStore(ST).put(item,'estado');
+      tx.oncomplete=function(){fim(true)};
+      tx.onerror=tx.onabort=function(){fim(false,(tx.error&&tx.error.name)||'erro')};
+    }catch(e){fim(false,String((e&&e.name)||e))}
+  }
+  P.gravar=function(json){
+    var t=Date.now();if(t<=P.t)t=P.t+1;P.t=t;
+    var ls=true;
+    try{localStorage.setItem(KEY,json);localStorage.setItem(TK,String(t))}
+    catch(e){ls=false;if(P.db){try{localStorage.removeItem(KEY);localStorage.removeItem(TK)}catch(_){}}} // cópia velha só sai se o IndexedDB guarda a nova
+    P.lsOk=ls;
+    if(P.db){fila={json:json,t:t};escreverIdb()}
+    return ls||!!P.db;
+  };
+  P.copia=function(json){ // cópia de segurança antes de trocar dados do aparelho (entrar/sair da conta)
+    if(!P.db)return;
+    try{var tx=P.db.transaction('copias','readwrite'),os=tx.objectStore('copias');os.put(json,'c'+Date.now());
+      var k=os.getAllKeys();k.onsuccess=function(){var ks=(k.result||[]).sort();while(ks.length>3)os.delete(ks.shift())}}catch(e){}
+  };
+  P.motivo=function(){return 'Não consegui salvar neste navegador'+(P.erroIdb?' ('+P.erroIdb+')':'')+'. Faça um backup em Ajustes e libere espaço no navegador.'};
+  function adotar(){
+    lerIdb().then(function(r){
+      if(!r||!(r.t>P.t))return;
+      var novo;try{novo=JSON.parse(r.json)}catch(e){return}
+      P.t=r.t;
+      Object.keys(S).forEach(function(k){delete S[k]});
+      Object.assign(S,blank(),novo);S.imp=Object.assign(blank().imp,novo.imp||{});
+      try{ensureConfig()}catch(e){}try{atualizarIconePWA()}catch(e){}
+      pend=true;
+      try{if(window.CLOUD&&CLOUD.aposAdotar)CLOUD.aposAdotar()}catch(e){}
+    });
+  }
+  setInterval(function(){ // redesenha a tela quando outra aba mudou os dados, sem atrapalhar quem está digitando
+    if(!pend)return;
+    var a=document.activeElement,tag=(a&&a.tagName)||'',m=document.getElementById('modal');
+    if(/^(INPUT|TEXTAREA|SELECT)$/.test(tag)||(m&&m.children.length))return;
+    pend=false;try{render()}catch(e){}
+  },1200);
+  function rodarApp(){
+    var ss=document.querySelectorAll('script[data-app]');
+    for(var i=0;i<ss.length;i++){var s=document.createElement('script');s.text=ss[i].text;document.body.appendChild(s)}
+    P.onerro=function(){if(typeof saveWarned!=='undefined'&&Date.now()-saveWarned>300000){saveWarned=Date.now();toast(P.motivo())}};
+    try{bc=new BroadcastChannel('barbarossa_fin_v1');bc.onmessage=function(ev){var m=ev.data||{};if(m.de===P.eu||!(m.t>P.t))return;adotar()}}catch(e){}
+    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+    var ext=function(src){return new Promise(function(ok){var s=document.createElement('script');s.src=src;s.onload=s.onerror=function(){ok()};document.body.appendChild(s)})};
+    ext('config.js').then(function(){return ext('cloud.js')});
+  }
+  function escolher(idb){
+    var lsJson=null,lsT=0;
+    try{lsJson=localStorage.getItem(KEY);lsT=Number(localStorage.getItem(TK))||0}catch(e){}
+    if(idb&&idb.json&&(!lsJson||idb.t>=lsT)){P.bootJson=idb.json;P.t=idb.t}
+    else if(lsJson){P.bootJson=lsJson;P.t=lsT;if(P.db){fila={json:lsJson,t:lsT||Date.now()};escreverIdb()}} // aparelho antigo: leva o que está no localStorage para o IndexedDB
+    rodarApp();
+  }
+  abrir().then(function(db){P.db=db;P.idbOk=true;return lerIdb()}).then(escolher,function(e){P.erroIdb=String((e&&e.message)||e);escolher(null)});
+})();
+</script>
 <script>if("serviceWorker" in navigator&&location.protocol!=="file:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
