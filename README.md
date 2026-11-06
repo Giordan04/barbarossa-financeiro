@@ -24,12 +24,12 @@ Sem configuração o app roda só no aparelho. Para ligar o login e a nuvem:
 4. Authentication → URL Configuration: coloque o endereço onde o app foi publicado em *Site URL* e *Redirect URLs*.
 5. Project Settings → API: copie **Project URL** e a chave **anon public** para `config.js`. Nunca use a `service_role`.
 
-### Entrar com Google e Apple
-Os botões já estão na tela de login (`loginSocial` em `config.js`). Para funcionarem, ative cada um em Supabase → Authentication → Providers:
-- **Google** (gratuito): Google Cloud Console → APIs e serviços → Credenciais → ID do cliente OAuth (tipo *Aplicativo da Web*). Em *URIs de redirecionamento autorizados* coloque o endereço de callback que o Supabase mostra na tela do provedor. Copie *Client ID* e *Client secret* para o Supabase.
-- **Apple**: exige o Apple Developer Program (US$ 99/ano). Crie um *Services ID* com "Sign in with Apple", configure o domínio e o *Return URL* que o Supabase mostra, gere uma chave (.p8) e preencha *Services ID*, *Team ID*, *Key ID* e a chave no Supabase.
+### Entrar com o Google
+O botão já está na tela de login (`loginSocial` em `config.js`). Para funcionar, ative em Supabase → Authentication → Providers → Google:
+- Google Cloud Console → APIs e serviços → Credenciais → ID do cliente OAuth (tipo *Aplicativo da Web*, gratuito). Em *URIs de redirecionamento autorizados* coloque o endereço de callback que o Supabase mostra na tela do provedor.
+- Copie *Client ID* e *Client secret* para o Supabase.
 - Em Authentication → URL Configuration, coloque o endereço do site em *Site URL* e *Redirect URLs*.
-Quem entra pela primeira vez por Google/Apple informa o nome da barbearia e a empresa é criada.
+Quem entra pela primeira vez pelo Google informa o nome da barbearia e a empresa é criada. (Apple fica de fora por enquanto: exige o Apple Developer Program, US$ 99/ano.)
 
 Como funciona (Etapa 1): cada empresa tem uma linha em `app_state` com todos os dados do app; só os membros da empresa enxergam (RLS). Gravações usam controle de versão — se dois aparelhos editarem ao mesmo tempo, o app pergunta qual versão manter. Ao entrar pela primeira vez, os dados que já estavam no aparelho sobem para a empresa nova; antes de qualquer troca de dados é guardada uma cópia local (`barbarossa_fin_v1_copia_*`).
 
